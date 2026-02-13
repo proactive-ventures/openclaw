@@ -75,3 +75,40 @@ USER.md
 memory/
 .agent/*.json
 !.agent/workflows/
+
+# Debug logs and build output
+*.log
+
+# Test output artifacts
+test_results*
+test_summary*
+test_failures*
+test_last_part*
+test_list.json
+failing_list.txt
+failure_investigation.txt
+parsed_failures.txt
+*.tap
+
+# Debug scripts (local)
+debug_*.mjs
+parse_results.mjs
+scan_skill.py
+
+# Temp outputs
+doctor_output.txt
+openclaw_help.txt
+node_run_help.txt
+logs_output.txt
+filtered_catalog*.txt
+free_models*.txt
+catalog.json
+
+# User-specific multi-machine setup (contains personal network data)
+README_MULTI_MACHINE.md
+MULTI_MACHINE_SETUP.md
+configure_node.bat
+diagnose_network.bat
+chat.bat
+start_gateway.bat
+start_node.bat

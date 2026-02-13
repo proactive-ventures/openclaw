@@ -237,9 +237,14 @@ export const nodeHandlers: GatewayRequestHandlers = {
     }
     await respondUnavailableOnThrow(respond, async () => {
       const list = await listDevicePairing();
+      console.log(`[DEBUG] node.list: list.paired.length = ${list.paired.length}`);
       const pairedById = new Map(
         list.paired
-          .filter((entry) => isNodeEntry(entry))
+          .filter((entry) => {
+            const match = isNodeEntry(entry);
+            console.log(`[DEBUG] node.list filter: deviceId=${entry.deviceId} isNodeEntry=${match}`);
+            return match;
+          })
           .map((entry) => [
             entry.deviceId,
             {
@@ -259,8 +264,10 @@ export const nodeHandlers: GatewayRequestHandlers = {
           ]),
       );
       const connected = context.nodeRegistry.listConnected();
+      console.log(`[DEBUG] node.list: connected.length = ${connected.length}`);
       const connectedById = new Map(connected.map((n) => [n.nodeId, n]));
       const nodeIds = new Set<string>([...pairedById.keys(), ...connectedById.keys()]);
+      console.log(`[DEBUG] node.list: nodeIds.size = ${nodeIds.size}`);
 
       const nodes = [...nodeIds].map((nodeId) => {
         const paired = pairedById.get(nodeId);

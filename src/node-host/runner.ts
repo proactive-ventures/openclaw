@@ -507,8 +507,8 @@ function resolveExecutable(bin: string, env?: Record<string, string>) {
   const extensions =
     process.platform === "win32"
       ? (process.env.PATHEXT ?? process.env.PathExt ?? ".EXE;.CMD;.BAT;.COM")
-          .split(";")
-          .map((ext) => ext.toLowerCase())
+        .split(";")
+        .map((ext) => ext.toLowerCase())
       : [""];
   for (const dir of resolveEnvPath(env)) {
     for (const ext of extensions) {
@@ -595,6 +595,8 @@ export async function runNodeHost(opts: NodeHostRunOptions): Promise<void> {
   // eslint-disable-next-line no-console
   console.log(`node host PATH: ${pathEnv}`);
 
+  // eslint-disable-next-line no-console
+  console.log(`[DEBUG] Initializing GatewayClient for node ${nodeId}...`);
   const client = new GatewayClient({
     url,
     token: token?.trim() || undefined,
@@ -623,6 +625,8 @@ export async function runNodeHost(opts: NodeHostRunOptions): Promise<void> {
       if (evt.event !== "node.invoke.request") {
         return;
       }
+      // eslint-disable-next-line no-console
+      console.log(`[DEBUG] Node received event: ${evt.event}`);
       const payload = coerceNodeInvokePayload(evt.payload);
       if (!payload) {
         return;
@@ -647,7 +651,7 @@ export async function runNodeHost(opts: NodeHostRunOptions): Promise<void> {
   });
 
   client.start();
-  await new Promise(() => {});
+  await new Promise(() => { });
 }
 
 async function handleInvoke(

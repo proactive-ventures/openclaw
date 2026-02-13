@@ -62,10 +62,18 @@ function generateIdentity(): DeviceIdentity {
 }
 
 export function loadOrCreateDeviceIdentity(filePath: string = DEFAULT_FILE): DeviceIdentity {
+  // eslint-disable-next-line no-console
+  console.log(`[DEBUG] Loading device identity from ${filePath}...`);
   try {
     if (fs.existsSync(filePath)) {
+      // eslint-disable-next-line no-console
+      console.log(`[DEBUG] File exists, reading...`);
       const raw = fs.readFileSync(filePath, "utf8");
+      // eslint-disable-next-line no-console
+      console.log(`[DEBUG] Read complete, parsing JSON...`);
       const parsed = JSON.parse(raw) as StoredIdentity;
+      // eslint-disable-next-line no-console
+      console.log(`[DEBUG] Parse complete.`);
       if (
         parsed?.version === 1 &&
         typeof parsed.deviceId === "string" &&
@@ -161,10 +169,10 @@ export function verifyDeviceSignature(
     const key = publicKey.includes("BEGIN")
       ? crypto.createPublicKey(publicKey)
       : crypto.createPublicKey({
-          key: Buffer.concat([ED25519_SPKI_PREFIX, base64UrlDecode(publicKey)]),
-          type: "spki",
-          format: "der",
-        });
+        key: Buffer.concat([ED25519_SPKI_PREFIX, base64UrlDecode(publicKey)]),
+        type: "spki",
+        format: "der",
+      });
     const sig = (() => {
       try {
         return base64UrlDecode(signatureBase64Url);

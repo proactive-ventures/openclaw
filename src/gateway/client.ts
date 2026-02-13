@@ -103,6 +103,8 @@ export class GatewayClient {
       return;
     }
     const url = this.opts.url ?? "ws://127.0.0.1:18789";
+    // eslint-disable-next-line no-console
+    console.log(`[DEBUG] GatewayClient.start() to ${url}...`);
     if (this.opts.tlsFingerprint && !url.startsWith("wss://")) {
       this.opts.onConnectError?.(new Error("gateway tls fingerprint requires wss:// gateway url"));
       return;
@@ -135,9 +137,13 @@ export class GatewayClient {
         // oxlint-disable-next-line typescript/no-explicit-any
       }) as any;
     }
+    // eslint-disable-next-line no-console
+    console.log(`[DEBUG] Creating WebSocket...`);
     this.ws = new WebSocket(url, wsOptions);
 
     this.ws.on("open", () => {
+      // eslint-disable-next-line no-console
+      console.log(`[DEBUG] WebSocket OPEN to ${url}`);
       if (url.startsWith("wss://") && this.opts.tlsFingerprint) {
         const tlsError = this.validateTlsFingerprint();
         if (tlsError) {
@@ -151,12 +157,16 @@ export class GatewayClient {
     this.ws.on("message", (data) => this.handleMessage(rawDataToString(data)));
     this.ws.on("close", (code, reason) => {
       const reasonText = rawDataToString(reason);
+      // eslint-disable-next-line no-console
+      console.log(`[DEBUG] WebSocket CLOSE: ${code} - ${reasonText}`);
       this.ws = null;
       this.flushPendingErrors(new Error(`gateway closed (${code}): ${reasonText}`));
       this.scheduleReconnect();
       this.opts.onClose?.(code, reasonText);
     });
     this.ws.on("error", (err) => {
+      // eslint-disable-next-line no-console
+      console.error(`[DEBUG] WebSocket ERROR: ${err.message}`);
       logDebug(`gateway client error: ${String(err)}`);
       if (!this.connectSent) {
         this.opts.onConnectError?.(err instanceof Error ? err : new Error(String(err)));
@@ -193,9 +203,9 @@ export class GatewayClient {
     const auth =
       authToken || this.opts.password
         ? {
-            token: authToken,
-            password: this.opts.password,
-          }
+          token: authToken,
+          password: this.opts.password,
+        }
         : undefined;
     const signedAtMs = Date.now();
     const nonce = this.connectNonce ?? undefined;

@@ -838,7 +838,7 @@ describe("security audit", () => {
     if (isWindows) {
       // Grant "Everyone" write access to trigger the perms_writable check on Windows
       const { execSync } = await import("node:child_process");
-      execSync(`icacls "${includePath}" /grant Everyone:W`, { stdio: "ignore" });
+      execSync(`icacls "${includePath}" /grant *S-1-1-0:W`, { stdio: "ignore" });
     } else {
       await fs.chmod(includePath, 0o644);
     }
@@ -852,18 +852,18 @@ describe("security audit", () => {
       const user = "DESKTOP-TEST\\Tester";
       const execIcacls = isWindows
         ? async (_cmd: string, args: string[]) => {
-            const target = args[0];
-            if (target === includePath) {
-              return {
-                stdout: `${target} NT AUTHORITY\\SYSTEM:(F)\n BUILTIN\\Users:(W)\n ${user}:(F)\n`,
-                stderr: "",
-              };
-            }
+          const target = args[0];
+          if (target === includePath) {
             return {
-              stdout: `${target} NT AUTHORITY\\SYSTEM:(F)\n ${user}:(F)\n`,
+              stdout: `${target} NT AUTHORITY\\SYSTEM:(F)\n BUILTIN\\Users:(W)\n ${user}:(F)\n`,
               stderr: "",
             };
           }
+          return {
+            stdout: `${target} NT AUTHORITY\\SYSTEM:(F)\n ${user}:(F)\n`,
+            stderr: "",
+          };
+        }
         : undefined;
       const res = await runSecurityAudit({
         config: cfg,

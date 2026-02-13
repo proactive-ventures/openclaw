@@ -132,10 +132,12 @@ async function withLock<T>(fn: () => Promise<T>): Promise<T> {
 
 async function loadState(baseDir?: string): Promise<DevicePairingStateFile> {
   const { pendingPath, pairedPath } = resolvePaths(baseDir);
+  console.log(`[DEBUG] Loading device pairing state from ${pairedPath}...`);
   const [pending, paired] = await Promise.all([
     readJSON<Record<string, DevicePairingPendingRequest>>(pendingPath),
     readJSON<Record<string, PairedDevice>>(pairedPath),
   ]);
+  console.log(`[DEBUG] Loaded ${Object.keys(paired ?? {}).length} paired devices.`);
   const state: DevicePairingStateFile = {
     pendingById: pending ?? {},
     pairedByDeviceId: paired ?? {},
@@ -241,6 +243,7 @@ export async function listDevicePairing(baseDir?: string): Promise<DevicePairing
   const paired = Object.values(state.pairedByDeviceId).toSorted(
     (a, b) => b.approvedAtMs - a.approvedAtMs,
   );
+  console.log(`[DEBUG] listDevicePairing: found ${paired.length} paired devices.`);
   return { pending, paired };
 }
 

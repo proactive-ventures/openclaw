@@ -34,7 +34,7 @@
     "android:test": "cd apps/android && ./gradlew :app:testDebugUnitTest",
     "build": "pnpm canvas:a2ui:bundle && tsdown && pnpm build:plugin-sdk:dts && node --import tsx scripts/write-plugin-sdk-entry-dts.ts && node --import tsx scripts/canvas-a2ui-copy.ts && node --import tsx scripts/copy-hook-metadata.ts && node --import tsx scripts/write-build-info.ts && node --import tsx scripts/write-cli-compat.ts",
     "build:plugin-sdk:dts": "tsc -p tsconfig.plugin-sdk.dts.json",
-    "canvas:a2ui:bundle": "bash scripts/bundle-a2ui.sh",
+    "canvas:a2ui:bundle": "node --import tsx scripts/bundle-a2ui.ts",
     "check": "pnpm tsgo && pnpm lint && pnpm format",
     "check:docs": "pnpm format:docs && pnpm lint:docs && pnpm docs:build",
     "check:loc": "node --import tsx scripts/check-ts-max-loc.ts --max 500",
@@ -158,6 +158,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@esbuild/win32-x64": "^0.27.3",
     "@grammyjs/types": "^3.23.0",
     "@lit-labs/signals": "^0.2.0",
     "@lit/context": "^1.1.6",
@@ -169,6 +170,7 @@
     "@types/ws": "^8.18.1",
     "@typescript/native-preview": "7.0.0-dev.20260206.1",
     "@vitest/coverage-v8": "^4.0.18",
+    "esbuild": "^0.27.3",
     "lit": "^3.3.2",
     "ollama": "^0.6.3",
     "oxfmt": "0.28.0",
@@ -209,8 +211,8 @@
       "@napi-rs/canvas",
       "@whiskeysockets/baileys",
       "authenticate-pam",
+      "core-js",
       "esbuild",
-      "node-llama-cpp",
       "protobufjs",
       "sharp"
     ]

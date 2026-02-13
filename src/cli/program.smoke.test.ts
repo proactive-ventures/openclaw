@@ -57,6 +57,9 @@ vi.mock("../gateway/call.js", () => ({
     message: "Gateway target: ws://127.0.0.1:1234",
   }),
 }));
+vi.mock("./program/config-guard.js", () => ({
+  ensureConfigReady: vi.fn(),
+}));
 vi.mock("./deps.js", () => ({ createDefaultDeps: () => ({}) }));
 vi.mock("./preaction.js", () => ({ registerPreActionHooks: () => {} }));
 
