@@ -65,14 +65,24 @@ Only ask for the risk profile after system context is known.
 
 If the user grants read-only permission, run the OS-appropriate checks by default. If not, offer them (numbered). Examples:
 
-1. OS: `uname -a`, `sw_vers`, `cat /etc/os-release`.
+1. OS: `uname -a`, `sw_vers`, `cat /etc/os-release`, or `systeminfo` (Windows).
 2. Listening ports:
    - Linux: `ss -ltnup` (or `ss -ltnp` if `-u` unsupported).
    - macOS: `lsof -nP -iTCP -sTCP:LISTEN`.
+   - Windows: `netstat -ano | findstr LISTENING` or `Get-NetTCPConnection -State Listen`.
 3. Firewall status:
    - Linux: `ufw status`, `firewall-cmd --state`, `nft list ruleset` (pick what is installed).
    - macOS: `/usr/libexec/ApplicationFirewall/socketfilterfw --getglobalstate` and `pfctl -s info`.
-4. Backups (macOS): `tmutil status` (if Time Machine is used).
+   - Windows: `netsh advfirewall show allprofiles state` or `Get-NetFirewallProfile | Select Name, Enabled`.
+4. Backups:
+   - macOS: `tmutil status` (if Time Machine is used).
+   - Windows: `wbadmin get status` or check File History via `Get-WmiObject -Class Win32_ShadowCopy`.
+5. Disk encryption:
+   - macOS: `fdesetup status` (FileVault).
+   - Windows: `manage-bde -status C:` (BitLocker) or `Get-BitLockerVolume`.
+   - Linux: `lsblk -o NAME,FSTYPE,MOUNTPOINT | grep crypt` (LUKS).
+6. Automatic updates:
+   - Windows: `Get-WindowsUpdateLog` or check via `Get-Service wuauserv | Select Status`.
 
 ### 2) Run OpenClaw security audits (read-only)
 

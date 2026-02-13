@@ -31,11 +31,19 @@ pnpm run check
 # Generate coverage report
 pnpm vitest run --coverage
 
-# Find source files without tests
+# Find source files without tests (Linux/macOS)
 find src -name '*.ts' ! -name '*.test.ts' ! -name '*.d.ts' -print | while read f; do
   test_file="${f%.ts}.test.ts"
   [ ! -f "$test_file" ] && echo "UNTESTED: $f"
 done
+
+# PowerShell (Windows)
+Get-ChildItem -Path src -Recurse -Filter *.ts | Where-Object {
+  $_.Name -notmatch '\.test\.ts$|\.d\.ts$'
+} | ForEach-Object {
+  $test = $_.FullName -replace '\.ts$', '.test.ts'
+  if (-not (Test-Path $test)) { "UNTESTED: $($_.FullName)" }
+}
 ```
 
 Priority for testing: security modules > core agent logic > tools > utilities.
@@ -57,14 +65,13 @@ Split strategies:
 ### 3. Code Quality Markers
 
 ```bash
-# Find TODOs, FIXMEs, HACKs
+# Find TODOs, FIXMEs, HACKs (use grep on Linux/macOS, Select-String on Windows)
 grep -rn 'TODO\|FIXME\|HACK\|XXX' src/ --include='*.ts' | head -50
-
-# Find commented-out code blocks
-grep -rn '^\s*//.*{$\|^\s*//.*function\|^\s*//.*class\|^\s*//.*import' src/ --include='*.ts'
+# PowerShell: Get-ChildItem src -Recurse -Filter *.ts | Select-String 'TODO|FIXME|HACK|XXX'
 
 # Check for console.log in production code (not tests)
 grep -rn 'console\.\(log\|debug\|info\)' src/ --include='*.ts' ! --include='*.test.ts'
+# PowerShell: Get-ChildItem src -Recurse -Filter *.ts | Where-Object { $_.Name -notmatch '\.test\.ts$' } | Select-String 'console\.(log|debug|info)'
 ```
 
 ### 4. Dependency Health

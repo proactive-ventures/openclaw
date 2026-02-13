@@ -220,6 +220,50 @@ git worktree remove /tmp/issue-99
 
 ---
 
+## Error Recovery
+
+Common failures and fixes:
+
+| Problem | Cause | Fix |
+|---------|-------|-----|
+| Agent hangs silently | Missing `pty:true` | Kill process, relaunch with `pty:true` |
+| "Not a git repository" | Codex requires git | `cd /tmp && mkdir proj && cd proj && git init` |
+| Agent exits immediately | Wrong binary/version | Check: `codex --version` or `claude --version` |
+| "Rate limit exceeded" | API quota hit | Wait 60s, or switch provider/model |
+| Broken output / garbled | Terminal encoding | Use `pty:true`, set `TERM=xterm-256color` |
+| Session lost connection | Network/timeout | `process action:log sessionId:XXX` to check state |
+| Agent loops on same error | Stuck on impossible task | Kill and restart with clearer prompt + constraints |
+
+### Recovery pattern
+
+```bash
+# 1. Check what happened
+process action:log sessionId:XXX limit:50
+
+# 2. If stuck, kill and respawn
+process action:kill sessionId:XXX
+bash pty:true workdir:~/project background:true command:"codex exec 'Fixed prompt here'"
+```
+
+---
+
+## Model Comparison
+
+| Agent | Best For | Speed | Cost | Notes |
+|-------|----------|-------|------|-------|
+| **Codex** | Code generation, multi-file edits | Fast | Medium | `--full-auto` for building, `--yolo` for auto-approve |
+| **Claude Code** | Complex reasoning, architecture | Medium | Higher | Excellent at planning before coding |
+| **Pi** | Versatile, multi-provider | Varies | Varies | Supports OpenAI, Anthropic, and more |
+| **OpenCode** | Lightweight tasks | Fast | Low | Good for quick one-shots |
+
+Choose based on task complexity:
+- **Simple fix/refactor**: Codex or OpenCode
+- **Multi-file feature**: Codex with `--full-auto`
+- **Architecture/design**: Claude Code
+- **Multi-provider flexibility**: Pi with `--provider` flag
+
+---
+
 ## ⚠️ Rules
 
 1. **Always use pty:true** - coding agents need a terminal!
